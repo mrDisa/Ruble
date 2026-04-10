@@ -3,8 +3,9 @@ from django.urls import include, path
 from django.conf.urls.static import static
 
 from main import views
-from main.views import CommentDetailView, CommentListCreateView, FollowDetailView, FollowListCreateView, LikeDetailView, LikeListCreateView, PostDetailView,  PostListCreateView, UserAPIList, UserDetailView, UserMeView
-
+from posts.views import CommentDetailView, CommentListCreateView, LikeDetailView, LikeListCreateView, PostDetailView,  PostListCreateView
+from users.views import UserAPIList, UserDetailView, UserMeView
+from main.views import FollowListCreateView, FollowDetailView
 from . import settings
 
 urlpatterns = [
