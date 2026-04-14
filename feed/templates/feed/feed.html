@@ -5,8 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Ruble - Главная страница</title>
     {% load static %}
-    <link rel="stylesheet" href="{% static 'feed/feed.css' %}">
-    <link rel="stylesheet" href="{% static 'feed/feed.js' %}">
+    <link rel="stylesheet" href="{% static 'feed/feed.css' %}" />
+    <script src="{% static 'feed/feed.js' %}" defer></script>
   </head>
   <body>
     <div class="container">
@@ -66,30 +66,6 @@
             </div>
           </div>
         </div>
-        
-        <div class="post">
-          <div class="post-header">
-            <div class="post-user-info">
-              <div class="avatar">😃</div>
-              <div class="user-details">
-                <div class="user-name-row">
-                  <span class="user-name">Имя</span>
-                  <span class="user-role">Работа</span>
-                </div>
-                <div class="user-name-row">
-                  <span class="user-tag">#никнейм</span>
-                  <span class="user-badge">Ранг</span>
-                </div>
-              </div>
-            </div>
-            <div style="color: var(--text-muted); cursor: pointer">•••</div>
-          </div>
-          <h2 class="post-title">Заголовок поста</h2>
-          <p class="post-text">Описание поста</p>
-          <img/>
-          <div class="post-footer">Время выкладывания поста</div>
-        </div>
-
 
         <div class="feed-end">Больше постов нет. Обновите страницу</div>
       </main>
