@@ -33,7 +33,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   function renderPosts(posts) {
     console.log("Шаг 5: Начинаем отрисовку постов...");
-    posts.forEach((post) => {
+    posts.results.forEach((post) => {
       const postElement = createPostElement(post);
       feedContainer.insertBefore(postElement, feedEnd);
     });
