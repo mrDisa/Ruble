@@ -3,7 +3,7 @@ from urllib import request
 from django.shortcuts import render
 from rest_framework import generics
 
-from main.models import Follow
+from interactions.models import Follow
 from posts.models import Post
 from posts.serializers import PostSerializer
 from rest_framework.permissions import IsAuthenticated

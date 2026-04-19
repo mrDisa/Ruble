@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'main',
     'users',
     'posts',
+    'interactions',
     'feed',
 ]
 # AUTHENTICATION

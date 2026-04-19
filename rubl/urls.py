@@ -6,7 +6,7 @@ from main import views
 from posts.views import CommentDetailView, CommentListCreateView, LikeDetailView, LikeListCreateView, MyPostsDetailView, PostDetailView,  PostListCreateView, MyPostsView
 from feed.views import FeedAPIView, FeedView
 from users.views import UserAPIList, UserDetailView, UserMeView, UserRegisterAPIView
-from main.views import FollowListCreateView, FollowDetailView
+from interactions.views import FollowListCreateView, FollowDetailView
 from . import settings
 
 from rest_framework_simplejwt.views import (
@@ -17,39 +17,23 @@ from rest_framework_simplejwt.views import (
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.mainView, name='main'),
+    
+    # jwt login
     path("api/v1/token/", TokenObtainPairView.as_view()),
     path("api/v1/token/refresh/", TokenRefreshView.as_view()),
-    # FEED
 
+    # feed
     path('api/v1/feed/', FeedAPIView.as_view()),
     path('feed/', FeedView, name='feed'),
 
-    # USER URLS
+    # users
+    path('api/v1/users/', include('users.urls')),
 
-    path('api/v1/register/', UserRegisterAPIView.as_view()),
-    path('api/v1/users/', UserAPIList.as_view()),
-    path('api/v1/users/<int:pk>/', UserDetailView.as_view()),
-    path('api/v1/users/me', UserMeView.as_view()),
-
-    # POST URLS
-
-    path('api/v1/posts/', PostListCreateView.as_view()),
-    path('api/v1/posts/<int:pk>/', PostDetailView.as_view()),
-    path('api/v1/myposts/', MyPostsView.as_view()),
-    path('api/v1/myposts/<int:pk>/', MyPostsDetailView.as_view()),
-
-    # COMMENT URLS
-    
-    path('api/v1/comments/', CommentListCreateView.as_view()),
-    path('api/v1/comments/<int:pk>/', CommentDetailView.as_view()),
-
-    # FOLLOW URLS
-    path('api/v1/follows/', FollowListCreateView.as_view()),
-    path('api/v1/follows/<int:pk>/', FollowDetailView.as_view()),
-
-    # LIKE URLS
-    path('api/v1/likes/', LikeListCreateView.as_view()),
-    path('api/v1/likes/<int:pk>/', LikeDetailView.as_view()),
+    # posts
+    path('api/v1/', include('posts.urls')),
+    path('api/v1/comments/', include('posts.urls')),
+    path('api/v1/follows/', include('interactions.urls')),
+    path('api/v1/likes/', include('posts.urls')),
 ]
 
 if settings.DEBUG:

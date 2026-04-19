@@ -6,7 +6,7 @@ from rest_framework import generics
 from posts.models import Comment, Like, Post
 # from rest_framework.permissions import SAFE_METHODS, BasePermission
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
-from main.permissions import IsOwnerOrReadOnly
+from interactions.permissions import IsOwnerOrReadOnly
 
 from .serializers import PostSerializer, CommentSerializer, LikeSerializer
 

@@ -4,7 +4,7 @@ from rest_framework import generics
 from users.serializers import UserSerializer
 from users.models import User
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
-from main.permissions import IsOwnerOrReadOnly
+from interactions.permissions import IsOwnerOrReadOnly
 
 class UserRegisterAPIView(generics.CreateAPIView):
     queryset = User.objects.all()
