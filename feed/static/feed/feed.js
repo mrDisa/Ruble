@@ -1,6 +1,23 @@
 document.addEventListener("DOMContentLoaded", () => {
   console.log("Шаг 1: JS-файл успешно подключен и скрипт запущен!");
 
+  // Функция получения CSRF-токена из куки
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+      const cookies = document.cookie.split(";");
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === name + "=") {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+  const csrftoken = getCookie("csrftoken");
+
   const apiUrl = "/api/v1/posts/";
   const feedContainer = document.querySelector(".feed");
   const feedEnd = document.querySelector(".feed-end");
@@ -18,15 +35,13 @@ document.addEventListener("DOMContentLoaded", () => {
       const posts = await response.json();
       console.log("Шаг 4: Полученные данные от API:", posts);
 
-      // Проверяем, есть ли посты в results
       if (!posts.results || posts.results.length === 0) {
         console.log("Внимание: Массив постов пустой!");
         feedEnd.textContent =
           "Пока нет постов. Выложите что-нибудь интересное!";
-        return; // Останавливаем выполнение, если постов нет
+        return;
       }
 
-      // Передаем именно массив results в рендер
       renderPosts(posts.results);
     } catch (error) {
       console.error("ПРОИЗОШЛА ОШИБКА:", error);
@@ -48,11 +63,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const postDiv = document.createElement("div");
     postDiv.classList.add("post");
 
-    // Защита от пустых данных: если автор не пришел, ставим заглушки
+    // Данные автора
     const author = post.author || {};
     const authorName = author.firstname
       ? author.firstname
       : author.username || "Неизвестный";
+
+    // Генерируем заглавную букву для аватарки
+    const avatarLetter = authorName.charAt(0).toUpperCase();
 
     // Форматируем дату безопасно
     const dateObj = new Date(post.created_at || Date.now());
@@ -86,17 +104,17 @@ document.addEventListener("DOMContentLoaded", () => {
       });
     }
 
-    // Собираем HTML (защита от null в заголовке или тексте)
+    // Собираем HTML поста (с обновленным дизайном и буквенной аватаркой)
     postDiv.innerHTML = `
           <div class="post-header">
             <div class="post-user-info">
-              <div class="avatar">😃</div>
+              <div class="avatar">${avatarLetter}</div>
               <div class="user-details">
                 <div class="user-name-row">
                   <span class="user-name">${authorName}</span>
                   <span class="user-role">${author.job || "Не указана"}</span>
                 </div>
-                <div class="user-name-row">
+                <div class="user-tag-row">
                   <span class="user-tag">#${author.username || "user"}</span>
                   <span class="user-badge">${author.rank || "Новичок"}</span>
                 </div>
@@ -171,6 +189,7 @@ document.addEventListener("DOMContentLoaded", () => {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
+            "X-CSRFToken": csrftoken,
           },
           body: JSON.stringify({
             is_liked: currentIsLiked,
@@ -224,6 +243,7 @@ document.addEventListener("DOMContentLoaded", () => {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
+            "X-CSRFToken": csrftoken,
           },
           body: JSON.stringify({
             comments_count: currentCommentsCount,
