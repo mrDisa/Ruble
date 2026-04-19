@@ -5,7 +5,7 @@ from django.conf.urls.static import static
 from main import views
 from posts.views import CommentDetailView, CommentListCreateView, LikeDetailView, LikeListCreateView, MyPostsDetailView, PostDetailView,  PostListCreateView, MyPostsView
 from feed.views import FeedAPIView, FeedView
-from users.views import UserAPIList, UserDetailView, UserMeView
+from users.views import UserAPIList, UserDetailView, UserMeView, UserRegisterAPIView
 from main.views import FollowListCreateView, FollowDetailView
 from . import settings
 
@@ -26,6 +26,7 @@ urlpatterns = [
 
     # USER URLS
 
+    path('api/v1/register/', UserRegisterAPIView.as_view()),
     path('api/v1/users/', UserAPIList.as_view()),
     path('api/v1/users/<int:pk>/', UserDetailView.as_view()),
     path('api/v1/users/me', UserMeView.as_view()),

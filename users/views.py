@@ -6,6 +6,10 @@ from users.models import User
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from main.permissions import IsOwnerOrReadOnly
 
+class UserRegisterAPIView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
 class UserAPIList(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
