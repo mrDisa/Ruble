@@ -69,37 +69,24 @@ class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
 # LIKES
 # ==========================================
 
-class LikeListCreateView(generics.ListCreateAPIView):
-    queryset = Like.objects.all()
-    serializer_class = LikeSerializer
-    permission_classes = [IsAuthenticatedOrReadOnly]
-
-
-class LikeDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Like.objects.all()
-    serializer_class = LikeSerializer
-    permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
-
-
 class ToggleLikeView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request, post_id):
-        # Находим пост, который лайкают
         post = get_object_or_404(Post, id=post_id)
-        
-        # Проверяем, лайкал ли уже этот юзер этот пост
         like_qs = Like.objects.filter(user=request.user, post=post)
         
         if like_qs.exists():
-            # Если лайк уже есть — удаляем его (убираем лайк)
             like_qs.delete()
             return Response({"detail": "Лайк убран", "is_liked": False}, status=status.HTTP_200_OK)
         
-        # Если лайка нет — создаем его
         Like.objects.create(user=request.user, post=post)
         return Response({"detail": "Лайк поставлен", "is_liked": True}, status=status.HTTP_201_CREATED)
-#Profile
+    
+# ==========================================
+# PROFILE
+# ==========================================
+
 class UserPostsListView(generics.ListAPIView):
     serializer_class = PostSerializer
 

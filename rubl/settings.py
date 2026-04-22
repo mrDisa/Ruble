@@ -39,10 +39,11 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'main',
+    'feed',
     'users',
     'posts',
     'interactions',
-    'feed',
+    'notifications',
 ]
 # AUTHENTICATION
 

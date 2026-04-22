@@ -10,12 +10,11 @@ class UserSerializer(serializers.ModelSerializer):
             'password': {'write_only': True},
             'job': {'required': False},
             'bio': {'required': False},
-            'rank': {'read_only': True}, # Ранг обычно меняет система, а не юзер
+            'rank': {'read_only': True},
         }
     
         
     def create(self, validated_data):
-        # Твоя оригинальная логика создания пользователя через create_user
         user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],

@@ -36,6 +36,7 @@ urlpatterns = [
     # 3. Маршруты приложений
     path('api/v1/users/', include('users.urls')),
     path('api/v1/follows/', include('interactions.urls')),
+    path("api/v1/", include("notifications.urls")),
     
     # В posts.urls уже лежат пути для posts/, comments/ и likes/
     # Поэтому мы подключаем его один раз в корень api/v1/
