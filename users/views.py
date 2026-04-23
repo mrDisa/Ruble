@@ -1,9 +1,10 @@
 from django.shortcuts import render
-from rest_framework import generics
+from rest_framework import generics, filters
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.viewsets import ReadOnlyModelViewSet
 
 from users.serializers import UserSerializer
 from users.models import User
-from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from interactions.permissions import IsOwnerOrReadOnly
 
 class UserRegisterAPIView(generics.CreateAPIView):
@@ -13,6 +14,9 @@ class UserRegisterAPIView(generics.CreateAPIView):
 class UserAPIList(generics.ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["^username"]
 
 class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
@@ -25,3 +29,4 @@ class UserMeView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
+    

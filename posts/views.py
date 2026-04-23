@@ -2,7 +2,7 @@
 from django.shortcuts import get_object_or_404
 
 # Django REST Framework
-from rest_framework import generics, status
+from rest_framework import generics, status, filters
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -21,6 +21,9 @@ class PostListCreateView(generics.ListCreateAPIView):
     queryset = Post.objects.all().order_by('-created_at')
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
+
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["title", "content"]
 
     def perform_create(self, serializer):
         serializer.save(author=self.request.user)
@@ -44,7 +47,6 @@ class MyPostsDetailView(generics.RetrieveUpdateDestroyAPIView):
 
     def get_queryset(self):
         return Post.objects.filter(author=self.request.user)
-
 
 # ==========================================
 # COMMENTS

@@ -6,6 +6,7 @@ from django.views.generic import TemplateView # Импорт для HTML-стр�
 # Оставили только нужные импорты
 from main import views
 from feed.views import FeedAPIView, FeedView
+from interactions.views import SearchView
 from . import settings
 
 from rest_framework_simplejwt.views import (
@@ -34,13 +35,8 @@ urlpatterns = [
     path('api/v1/feed/', FeedAPIView.as_view(), name='api_feed'),
 
     # 3. Маршруты приложений
-    path('api/v1/users/', include('users.urls')),
-    path('api/v1/follows/', include('interactions.urls')),
-    path("api/v1/", include("notifications.urls")),
-    
-    # В posts.urls уже лежат пути для posts/, comments/ и likes/
-    # Поэтому мы подключаем его один раз в корень api/v1/
-    path('api/v1/', include('posts.urls')), 
+    path('api/v1/', include('main.api.urls')),
+    path('api/v1/search/', SearchView.as_view()),
     path('profile/<int:pk>/', TemplateView.as_view(template_name='users/profile.html'), name='profile_page'),
 ]
 
