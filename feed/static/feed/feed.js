@@ -6,8 +6,7 @@ document.addEventListener("DOMContentLoaded", () => {
   }
 
   const csrftoken = getCookie("csrftoken");
-  const feedContainer = document.querySelector(".feed");
-  const feedEnd = document.querySelector(".feed-end");
+  const feedContainer = document.getElementById("feed-posts-container");
 
   async function loadMyProfile() {
     try {
@@ -19,11 +18,10 @@ document.addEventListener("DOMContentLoaded", () => {
         document.getElementById("current-username").textContent =
           userData.username;
         document.getElementById("current-usertag").textContent =
-          `#${userData.username}`;
+          `@${userData.username}`;
         document.getElementById("current-avatar").textContent =
           userData.username.charAt(0).toUpperCase();
 
-        // Оживляем ссылку в сайдбаре!
         const myProfileLink = document.getElementById("my-profile-link");
         if (myProfileLink) {
           myProfileLink.href = `/profile/${userData.id}/`;
@@ -43,21 +41,20 @@ document.addEventListener("DOMContentLoaded", () => {
       const results = posts.results || posts;
 
       results.forEach((post) => {
-        feedContainer.insertBefore(
-          createPostElement(post, accessToken),
-          feedEnd,
-        );
+        feedContainer.appendChild(createPostElement(post, accessToken));
       });
     } catch (e) {
       console.error(e);
     }
   }
 
-  // Логика кнопки "Запостить"
   const sBtn = document.getElementById("submit-post-btn");
   const mediaInp = document.getElementById("new-post-media");
   const attachBtn = document.getElementById("attach-media-btn");
   const fileName = document.getElementById("attached-file-name");
+
+  const titleInput = document.getElementById("new-post-title");
+  const contentInput = document.getElementById("new-post-content");
 
   if (attachBtn) {
     attachBtn.addEventListener("click", () => mediaInp.click());
@@ -69,13 +66,23 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  // ДОБАВЛЕНО: Глобальный перехват Enter внутри блока создания поста
+  const postCreatorBox = document.querySelector(".post-creator");
+  postCreatorBox.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      sBtn.click();
+    }
+  });
+
   sBtn.addEventListener("click", async () => {
-    const title = document.getElementById("new-post-title").value.trim();
-    const content = document.getElementById("new-post-content").value.trim();
-    if (!title || !content) return alert("Заполните заголовок и текст!");
+    const title = titleInput.value.trim();
+    const content = contentInput.value.trim();
+
+    if (!content) return alert("Пожалуйста, напишите текст поста!");
 
     const fd = new FormData();
-    fd.append("title", title);
+    if (title) fd.append("title", title);
     fd.append("content", content);
     if (mediaInp.files[0]) fd.append("media", mediaInp.files[0]);
 
@@ -89,17 +96,19 @@ document.addEventListener("DOMContentLoaded", () => {
         },
         body: fd,
       });
+
       if (res.ok) {
         const newPost = await res.json();
-        feedContainer.insertBefore(
-          createPostElement(newPost, accessToken),
-          feedContainer.querySelector(".post") || feedEnd,
-        );
-        document.getElementById("new-post-title").value = "";
-        document.getElementById("new-post-content").value = "";
+        feedContainer.prepend(createPostElement(newPost, accessToken));
+        titleInput.value = "";
+        contentInput.value = "";
         mediaInp.value = "";
         fileName.textContent = "";
         attachBtn.setAttribute("fill", "#8b8b9b");
+      } else {
+        alert(
+          "Ошибка сервера. Возможно, в моделях Django заголовок указан как обязательный.",
+        );
       }
     } catch (e) {
       console.error(e);

@@ -5,7 +5,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     return;
   }
 
-  // Получаем ID из URL (/profile/5/ -> 5)
   const urlParts = window.location.pathname.split("/").filter((p) => p !== "");
   const userIdFromUrl = urlParts[urlParts.length - 1];
 
@@ -14,28 +13,24 @@ document.addEventListener("DOMContentLoaded", async () => {
 
   async function initProfile() {
     try {
-      // 1. Загружаем "Меня" для сайдбара и проверки прав
       const meRes = await fetch("/api/v1/users/me/", {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
       const me = await meRes.json();
 
-      // Синхронизируем сайдбар
       document.getElementById("current-username").textContent = me.username;
       document.getElementById("current-usertag").textContent =
-        `#${me.username}`;
+        `@${me.username}`; // ЗАМЕНА НА @
       document.getElementById("current-avatar").textContent = me.username
         .charAt(0)
         .toUpperCase();
       document.getElementById("my-profile-link").href = `/profile/${me.id}/`;
 
-      // 2. Загружаем данные текущего профиля
       const res = await fetch(`/api/v1/users/${userIdFromUrl}/`, {
         headers: { Authorization: `Bearer ${accessToken}` },
       });
       const user = await res.json();
 
-      // Заполняем шапку профиля
       document.getElementById("profile-name").textContent =
         user.first_name || user.username;
       document.getElementById("profile-job").textContent =
@@ -50,12 +45,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         avatarBig.textContent = user.username.charAt(0).toUpperCase();
       }
 
-      // 3. Если это мой профиль — показываем кнопку
       if (String(me.id) === String(user.id)) {
         editBtn.style.display = "inline-block";
       }
 
-      // 4. Грузим посты
       loadUserPosts(user.id);
     } catch (e) {
       console.error("Ошибка загрузки:", e);
@@ -89,11 +82,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
   }
 
-  // Логика модалки
   if (editBtn) {
     editBtn.addEventListener("click", () => {
       editModal.style.display = "flex";
-      // Подтягиваем текущие значения в инпуты
       document.getElementById("edit-firstname").value =
         document.getElementById("profile-name").textContent;
       document.getElementById("edit-job").value =

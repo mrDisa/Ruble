@@ -8,56 +8,105 @@
     <link rel="stylesheet" href="{% static 'feed/feed.css' %}" />
     <script src="{% static 'feed/utils.js' %}" defer></script>
     <script src="{% static 'users/profile.js' %}" defer></script>
+    <style>
+      input[type="file"]::file-selector-button {
+        background: #ffffff;
+        color: #000000;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 10px;
+        cursor: pointer;
+        margin-right: 12px;
+        font-family: inherit;
+        font-weight: 600;
+        transition: 0.2s ease;
+      }
+      input[type="file"]::file-selector-button:hover {
+        background: #e6e6e6;
+      }
+
+      .sidebar-left {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end !important;
+        padding-right: 32px !important;
+        box-sizing: border-box;
+      }
+    </style>
   </head>
   <body>
     <div class="container">
       <aside class="sidebar-left">
-        <div class="logo">Ruble</div>
-        <div class="nav-pill">
-          <a
-            href="/feed/"
-            style="
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              width: 50px;
-              height: 50px;
-              background: rgba(255, 255, 255, 0.1);
-              border-radius: 50%;
-              text-decoration: none;
-            "
-          >
-            <svg width="24" height="24" fill="white" viewBox="0 0 24 24">
-              <path d="M12 3L4 9v12h5v-7h6v7h5V9z" />
-            </svg>
-          </a>
+        <div class="logo" style="margin-bottom: 32px">Ruble</div>
+
+        <div
+          style="
+            margin-bottom: auto;
+            width: 100%;
+            display: flex;
+            justify-content: flex-end;
+          "
+        >
+          <div class="nav-pill">
+            <a href="/feed/" style="display: contents">
+              <svg class="nav-icon" viewBox="0 0 24 24">
+                <path d="M12 3L4 9v12h5v-7h6v7h5V9z" />
+              </svg>
+            </a>
+            <a href="#" style="display: contents">
+              <svg class="nav-icon" viewBox="0 0 24 24">
+                <path
+                  d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"
+                />
+              </svg>
+            </a>
+          </div>
         </div>
 
         <a
           href="#"
           id="my-profile-link"
-          style="
-            text-decoration: none;
-            color: inherit;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-            width: 100%;
-            margin-top: auto;
-          "
+          style="text-decoration: none; color: inherit; margin-top: auto"
         >
           <div
             class="user-profile"
-            style="cursor: pointer; display: flex; align-items: center"
+            style="
+              cursor: pointer;
+              display: flex;
+              align-items: center;
+              gap: 8px;
+            "
           >
-            <div
-              class="user-details"
-              style="text-align: right; margin-right: 10px"
-            >
-              <div class="user-name" id="current-username">Загрузка...</div>
-              <div class="user-tag" id="current-usertag">#...</div>
+            <div class="user-details" style="text-align: right">
+              <div
+                class="user-name"
+                id="current-username"
+                style="font-weight: 600"
+              >
+                Загрузка...
+              </div>
+              <div
+                class="user-tag"
+                id="current-usertag"
+                style="color: #8b8b9b; font-size: 13px"
+              >
+                @...
+              </div>
             </div>
-            <div class="avatar" id="current-avatar">?</div>
+            <div
+              class="avatar"
+              id="current-avatar"
+              style="
+                background: #ffffff;
+                color: #000000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: bold;
+              "
+            >
+              ?
+            </div>
           </div>
         </a>
       </aside>
@@ -66,85 +115,134 @@
         <div
           class="profile-header"
           style="
-            background: rgba(255, 255, 255, 0.03);
+            background: #ffffff05;
             padding: 40px;
             border-radius: 24px;
-            margin-bottom: 30px;
+            margin-bottom: 0;
             text-align: center;
-            border: 1px solid #2a2a35;
+            border: 1px solid #ffffff0d;
           "
         >
           <div
             id="profile-avatar-big"
             class="avatar"
             style="
-              width: 120px;
-              height: 120px;
-              font-size: 48px;
+              width: 100px;
+              height: 100px;
+              font-size: 40px;
               margin: 0 auto 20px;
-              background: #fff;
-              color: #000;
+              background: #ffffff;
+              color: #000000;
               overflow: hidden;
               display: flex;
               align-items: center;
               justify-content: center;
-              border: 4px solid #1c1c22;
             "
           >
             ?
           </div>
-          <h1 id="profile-name">...</h1>
+          <h1 id="profile-name" style="margin-bottom: 8px">...</h1>
           <p
             id="profile-job"
-            style="color: #8b8b9b; margin-bottom: 12px; font-weight: 500"
+            style="
+              color: #8b8b9b;
+              margin-bottom: 16px;
+              font-weight: 500;
+              font-size: 14px;
+            "
           >
             ...
           </p>
           <p
             id="profile-bio"
             style="
-              color: #ccc;
-              font-size: 15px;
+              color: #cccccc;
+              font-size: 14px;
               max-width: 500px;
               margin: 0 auto 24px;
+              line-height: 1.6;
             "
           >
             ...
           </p>
-
           <div
             style="
               display: flex;
               justify-content: center;
               gap: 40px;
-              color: #ccc;
+              color: #8b8b9b;
+              font-size: 13px;
+              text-transform: uppercase;
             "
           >
-            <div><b id="posts-count">0</b> <br />постов</div>
-            <div><b id="followers-count">0</b> <br />рубликов</div>
+            <div>
+              <b
+                id="posts-count"
+                style="
+                  color: #ffffff;
+                  font-size: 1.4em;
+                  display: block;
+                  margin-bottom: 4px;
+                "
+                >0</b
+              >
+              постов
+            </div>
+            <div>
+              <b
+                id="followers-count"
+                style="
+                  color: #ffffff;
+                  font-size: 1.4em;
+                  display: block;
+                  margin-bottom: 4px;
+                "
+                >0</b
+              >
+              рубликов
+            </div>
           </div>
-
           <button
             id="edit-profile-btn"
-            class="btn-post"
-            style="margin-top: 30px; display: none; width: 220px"
+            style="
+              margin: 24px auto 0;
+              display: none;
+              width: 100%;
+              max-width: 280px;
+              height: 48px;
+              background: #ffffff;
+              color: #000000;
+              border: none;
+              border-radius: 12px;
+              cursor: pointer;
+              font-weight: 600;
+              font-size: 15px;
+            "
           >
-            Настройки профиля
+            Редактировать профиль
           </button>
         </div>
 
         <h2
           style="
-            margin-bottom: 24px;
-            font-weight: 300;
+            margin: 12px 0 4px 0;
+            font-weight: 600;
+            font-size: 16px;
             opacity: 0.8;
             letter-spacing: 1px;
+            text-transform: uppercase;
           "
         >
           ПУБЛИКАЦИИ
         </h2>
-        <div id="user-posts-container"></div>
-        <div id="profile-feed-end" class="feed-end">Загрузка...</div>
+
+        <div
+          id="user-posts-container"
+          style="display: flex; flex-direction: column; gap: 16px"
+        ></div>
+        <div id="profile-feed-end" class="feed-end" style="margin-top: 24px">
+          Загрузка...
+        </div>
       </main>
 
       <aside class="sidebar-right"></aside>
@@ -159,8 +257,7 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.85);
-        backdrop-filter: blur(8px);
+        background: #000000d9;
         z-index: 1000;
         justify-content: center;
         align-items: center;
@@ -169,14 +266,14 @@
       <div
         style="
           background: #1c1c22;
-          padding: 30px;
+          padding: 40px;
           border-radius: 24px;
           width: 90%;
           max-width: 450px;
           border: 1px solid #2a2a35;
         "
       >
-        <h2 style="margin-bottom: 20px; text-align: center">
+        <h2 style="margin-bottom: 24px; text-align: center; font-weight: 600">
           Настройки профиля
         </h2>
         <form id="edit-profile-form">
@@ -187,11 +284,11 @@
             style="
               width: 100%;
               background: #2a2a35;
-              border: 1px solid #333;
-              padding: 12px;
+              border: 1px solid #333333;
+              padding: 14px;
               border-radius: 12px;
-              color: white;
-              margin-bottom: 15px;
+              color: #ffffff;
+              margin-bottom: 16px;
               outline: none;
             "
           />
@@ -202,11 +299,11 @@
             style="
               width: 100%;
               background: #2a2a35;
-              border: 1px solid #333;
-              padding: 12px;
+              border: 1px solid #333333;
+              padding: 14px;
               border-radius: 12px;
-              color: white;
-              margin-bottom: 15px;
+              color: #ffffff;
+              margin-bottom: 16px;
               outline: none;
               font-family: inherit;
               resize: none;
@@ -219,11 +316,11 @@
             style="
               width: 100%;
               background: #2a2a35;
-              border: 1px solid #333;
-              padding: 12px;
+              border: 1px solid #333333;
+              padding: 14px;
               border-radius: 12px;
-              color: white;
-              margin-bottom: 15px;
+              color: #ffffff;
+              margin-bottom: 16px;
               outline: none;
             "
           />
@@ -231,13 +328,29 @@
             type="file"
             id="edit-avatar-input"
             accept="image/*"
-            style="margin-bottom: 25px; color: #8b8b9b; font-size: 12px"
+            style="
+              margin-bottom: 30px;
+              color: #8b8b9b;
+              font-size: 13px;
+              width: 100%;
+              outline: none;
+            "
           />
-          <div style="display: flex; gap: 12px">
+          <div style="display: flex; gap: 16px">
             <button
               type="submit"
-              class="btn-post"
-              style="flex: 2; margin: 0; height: 45px"
+              style="
+                flex: 2;
+                margin: 0;
+                height: 48px;
+                background: #ffffff;
+                color: #000000;
+                border: none;
+                border-radius: 12px;
+                font-weight: 600;
+                font-size: 15px;
+                cursor: pointer;
+              "
             >
               Сохранить
             </button>
@@ -246,11 +359,13 @@
               id="close-modal"
               style="
                 flex: 1;
-                background: #2a2a35;
-                color: white;
-                border: none;
-                border-radius: 30px;
+                background: transparent;
+                color: #8b8b9b;
+                border: 1px solid #333333;
+                border-radius: 12px;
                 cursor: pointer;
+                font-weight: 500;
+                font-size: 15px;
               "
             >
               Отмена

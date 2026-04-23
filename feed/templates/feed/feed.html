@@ -8,42 +8,132 @@
     <link rel="stylesheet" href="{% static 'feed/feed.css' %}" />
     <script src="{% static 'feed/utils.js' %}" defer></script>
     <script src="{% static 'feed/feed.js' %}" defer></script>
+    <style>
+      .sidebar-left {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end !important;
+        padding-right: 32px !important;
+        box-sizing: border-box;
+      }
+    </style>
   </head>
   <body>
     <div class="container">
       <aside class="sidebar-left">
-        <div class="logo">Ruble</div>
+        <div class="logo" style="margin-bottom: 32px">Ruble</div>
 
-        <div class="nav-pill">
-          <svg class="nav-icon active" viewBox="0 0 24 24">
-            <path d="M12 3L4 9v12h5v-7h6v7h5V9z" />
-          </svg>
-          <svg class="nav-icon" viewBox="0 0 24 24">
+        <div
+          style="
+            margin-bottom: auto;
+            width: 100%;
+            display: flex;
+            justify-content: flex-end;
+          "
+        >
+          <div class="nav-pill">
+            <a href="/feed/" style="display: contents">
+              <svg class="nav-icon active" viewBox="0 0 24 24">
+                <path d="M12 3L4 9v12h5v-7h6v7h5V9z" />
+              </svg>
+            </a>
+            <a href="#" style="display: contents">
+              <svg class="nav-icon" viewBox="0 0 24 24">
+                <path
+                  d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"
+                />
+              </svg>
+            </a>
+          </div>
+        </div>
+
+        <a
+          href="#"
+          id="my-profile-link"
+          style="text-decoration: none; color: inherit; margin-top: auto"
+        >
+          <div
+            class="user-profile"
+            style="
+              cursor: pointer;
+              display: flex;
+              align-items: center;
+              gap: 8px;
+            "
+          >
+            <div class="user-details" style="text-align: right">
+              <div
+                class="user-name"
+                id="current-username"
+                style="font-weight: 600"
+              >
+                Загрузка...
+              </div>
+              <div
+                class="user-tag"
+                id="current-usertag"
+                style="color: #8b8b9b; font-size: 13px"
+              >
+                @...
+              </div>
+            </div>
+            <div
+              class="avatar"
+              id="current-avatar"
+              style="
+                background: #ffffff;
+                color: #000000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                font-weight: bold;
+              "
+            >
+              ?
+            </div>
+          </div>
+        </a>
+      </aside>
+
+      <main class="feed">
+        <div
+          class="search-bar"
+          style="
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            background: #1c1c22;
+            border-radius: 16px;
+            padding: 14px 20px;
+            border: 1px solid #2a2a35;
+          "
+        >
+          <svg
+            width="20"
+            height="20"
+            fill="#8b8b9b"
+            viewBox="0 0 24 24"
+            style="margin-right: 12px"
+          >
             <path
               d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"
             />
           </svg>
-          <svg class="nav-icon" viewBox="0 0 24 24">
-            <path
-              d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"
-            />
-          </svg>
-          <svg class="nav-icon" viewBox="0 0 24 24">
-            <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z" />
-          </svg>
+          <input
+            type="text"
+            placeholder="Поиск по постам..."
+            style="
+              background: transparent;
+              border: none;
+              color: #ffffff;
+              width: 100%;
+              outline: none;
+              font-size: 15px;
+            "
+          />
         </div>
 
-        <div class="user-profile">
-          <div class="user-details" style="text-align: right">
-            <div class="user-name" id="current-username">Загрузка...</div>
-            <div class="user-tag" id="current-usertag">#...</div>
-          </div>
-          <div class="avatar" id="current-avatar">?</div>
-        </div>
-      </aside>
-
-      <main class="feed">
-        <h1 class="feed-header">Лента</h1>
+        <h1 class="feed-header" style="margin-bottom: 4px">Создание поста</h1>
 
         <div class="post-creator">
           <input
@@ -57,7 +147,6 @@
             id="new-post-content"
             placeholder="Выложите что-нибудь интересное."
           />
-
           <div
             class="post-creator-actions"
             style="
@@ -77,7 +166,7 @@
               />
               <svg
                 id="attach-media-btn"
-                style="cursor: pointer; transition: 0.2s"
+                style="cursor: pointer"
                 width="20"
                 height="20"
                 fill="#8b8b9b"
@@ -100,7 +189,6 @@
                 "
               ></span>
             </div>
-
             <div>
               <svg
                 width="24"
@@ -116,37 +204,75 @@
           </div>
         </div>
 
-        <div class="feed-end">Больше постов нет.</div>
+        <h1 class="feed-header" style="margin-top: 12px; margin-bottom: 4px">
+          Лента
+        </h1>
+
+        <div
+          id="feed-posts-container"
+          style="display: flex; flex-direction: column; gap: 16px"
+        ></div>
+
+        <div class="feed-end" style="margin-top: 24px">Больше постов нет.</div>
       </main>
 
       <aside class="sidebar-right">
         <div>
           <h2 class="widget-title">Итоги недели</h2>
           <div class="top-users-header">Топ 5 лучших рубликов</div>
+
           <div class="top-user-card">
             <div class="top-user-left">
-              <div class="avatar">Д</div>
+              <div
+                class="avatar"
+                style="
+                  background: #ffffff;
+                  color: #000000;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  font-weight: bold;
+                "
+              >
+                Д
+              </div>
               <div class="user-details">
                 <span class="top-user-name">Даня</span
-                ><span class="top-user-tag">#disa</span>
+                ><span class="top-user-tag" style="color: #8b8b9b">@disa</span>
               </div>
             </div>
             <div class="top-user-right">
               <div class="top-user-badge">ЛУЧШИЙ</div>
             </div>
           </div>
+
           <div class="top-user-card">
             <div class="top-user-left">
-              <div class="avatar">Б</div>
+              <div
+                class="avatar"
+                style="
+                  background: #ffffff;
+                  color: #000000;
+                  display: flex;
+                  align-items: center;
+                  justify-content: center;
+                  font-weight: bold;
+                "
+              >
+                Б
+              </div>
               <div class="user-details">
                 <span class="top-user-name">Богдашк</span
-                ><span class="top-user-tag">#Pantihen</span>
+                ><span class="top-user-tag" style="color: #8b8b9b"
+                  >@Pantihen</span
+                >
               </div>
             </div>
             <div class="top-user-right">
               <div class="top-user-badge">ЛЮБИМЫЙ</div>
             </div>
           </div>
+
           <div class="see-more">см. больше</div>
         </div>
 
