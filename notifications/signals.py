@@ -12,28 +12,55 @@ def create_like_notification(sender, instance, created, **kwargs):
         return
 
     post = instance.post
+    comment = instance.comment
 
-    if post.author == instance.user:
-        return
+    # LIKE POST
+    if post:
+        if post.author == instance.user:
+            return
 
-    key = f"like_post_{post.id}"
+        key = f"like_post_{post.id}"
 
-    notification, created = Notification.objects.get_or_create(
-        user=post.author,
-        type=Notification.NotificationType.LIKE,
-        post=post,
-        grouping_key=key,
-        defaults={
-            "actor": instance.user,
-            "actor_count": 1
-        }
-    )
+        notification, created = Notification.objects.get_or_create(
+            user=post.author,
+            type=Notification.NotificationType.LIKE,
+            post=post,
+            grouping_key=key,
+            defaults={
+                "actor": instance.user,
+                "actor_count": 1
+            }
+        )
 
-    if not created:
-        notification.actor_count += 1
-        notification.actor = instance.user
-        notification.is_read = False
-        notification.save()
+        if not created:
+            notification.actor_count += 1
+            notification.actor = instance.user
+            notification.is_read = False
+            notification.save()
+
+    # LIKE COMMENT
+    elif comment:
+        if comment.author == instance.user:
+            return
+
+        key = f"like_comment_{comment.id}"
+
+        notification, created = Notification.objects.get_or_create(
+            user=comment.author,
+            type=Notification.NotificationType.LIKE,
+            post=comment.post,
+            grouping_key=key,
+            defaults={
+                "actor": instance.user,
+                "actor_count": 1
+            }
+        )
+
+        if not created:
+            notification.actor_count += 1
+            notification.actor = instance.user
+            notification.is_read = False
+            notification.save()
 
 
 @receiver(post_save, sender=Follow)

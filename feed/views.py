@@ -16,7 +16,7 @@ def FeedView(request):
 class FeedAPIView(generics.ListAPIView):
     serializer_class = PostSerializer
     def get_queryset(self):
-        follow = Follow.objects.filter(follower=self.request.user)
+        follow = Follow.objects.filter(follower=self.request.user).select_related("author").prefetch_related("likes", "comments")
         following_users = follow.values_list('following', flat=True)
-        return Post.objects.filter(author__in=following_users).distinct().order_by('-created_at').prefetch_related('comments')
+        return Post.objects.filter(author__in=following_users).distinct().order_by('-created_at').prefetch_related('likes', 'comments')
     permission_classes = [IsAuthenticated]

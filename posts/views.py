@@ -48,6 +48,20 @@ class MyPostsDetailView(generics.RetrieveUpdateDestroyAPIView):
     def get_queryset(self):
         return Post.objects.filter(author=self.request.user)
 
+
+class PostCommentsView(generics.ListCreateAPIView):
+    serializer_class = CommentSerializer
+
+    def get_queryset(self):
+        post_id = self.kwargs["pk"]
+        return Comment.objects.filter(post_id=post_id).order_by("-created_at")
+
+    def perform_create(self, serializer):
+        post_id = self.kwargs["pk"]
+        serializer.save(
+            author=self.request.user,
+            post_id=post_id
+        )
 # ==========================================
 # COMMENTS
 # ==========================================
@@ -65,6 +79,36 @@ class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = Comment.objects.all()
     serializer_class = CommentSerializer
     permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
+
+class CommentLikeToggleView(APIView):
+    def post(self, request, post_id, comment_id):
+
+        if request.user.is_anonymous:
+            return Response(status=401)
+
+        post = get_object_or_404(Post, id=post_id)
+
+        comment = get_object_or_404(
+            Comment,
+            id=comment_id,
+            post=post
+        )
+
+        like = Like.objects.filter(
+            user=request.user,
+            comment=comment
+        ).first()
+
+        if like:
+            like.delete()
+            return Response({"liked": False})
+
+        Like.objects.create(
+            user=request.user,
+            comment=comment
+        )
+
+        return Response({"liked": True})
 
 
 # ==========================================
