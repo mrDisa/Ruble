@@ -240,4 +240,4 @@ Ruble разработан независимой командой:
 
 Богдан Максименко:
 
-- Telegram: [@Pantigen](https://t.me/@Pantihen) / Почта: bogdanmaksimenko51@gmail.com
+- Telegram: [@Pantihen](https://t.me/@Pantihen) / Почта: bogdanmaksimenko51@gmail.com
