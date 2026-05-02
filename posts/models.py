@@ -1,21 +1,39 @@
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.core.validators import MaxValueValidator, MinValueValidator
+from django.shortcuts import get_object_or_404
 
 from users.models import User
+
 
 class Post(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=100, blank=True, null=True)
-    
     content = models.TextField(max_length=600, blank=True, null=True)
-    
     media = models.ImageField(upload_to='media/%Y%m%d', blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    rating_avg = models.FloatField(default=0)
+    rating_count = models.IntegerField(default=0)
     
     def __str__(self):
         return f"Автор: {self.author}, Заголовок поста: {self.title}"
+    
+
+class PostRating(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    post = models.ForeignKey(Post, on_delete=models.CASCADE)
+    value = models.IntegerField(validators=[
+            MinValueValidator(1),
+            MaxValueValidator(5)
+        ])
+    created_at = models.DateTimeField(auto_now_add=True)
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['user', 'post'], name='unique_user_post')
+        ]
 
 class Comment(models.Model):
     author = models.ForeignKey(User, on_delete=models.CASCADE)

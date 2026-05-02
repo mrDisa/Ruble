@@ -6,7 +6,8 @@ from posts.views import (
     MyPostsView,
     PostCommentsView, 
     PostDetailView, 
-    PostListCreateView, 
+    PostListCreateView,
+    PostRatingView, 
     ToggleLikeView, 
     UserPostsListView
 )
@@ -18,6 +19,7 @@ urlpatterns = [
     path('<int:post_id>/like/', ToggleLikeView.as_view()), 
     path('<int:pk>/comments/', PostCommentsView.as_view()),
     path('<int:post_id>/comments/<int:comment_id>/like/', CommentLikeToggleView.as_view()),
+    path('<int:post_id>/rate/', PostRatingView.as_view()),
     
     # --- МОИ ПОСТЫ ---
     path('myposts/', MyPostsView.as_view()),

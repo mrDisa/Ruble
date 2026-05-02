@@ -4,7 +4,7 @@ from django.urls import path
 from .views import (
     CommentDetailView, CommentListCreateView, 
     MyPostsDetailView, MyPostsView, 
-    PostDetailView, PostListCreateView,
+    PostDetailView, PostListCreateView, PostRatingView,
     ToggleLikeView, UserPostsListView,
     CommentLikeToggleView, PostCommentsView 
 )
@@ -29,6 +29,5 @@ urlpatterns = [
     path('comments/', CommentListCreateView.as_view(), name='comment-list'),
     path('comments/<int:pk>/', CommentDetailView.as_view(), name='comment-detail'),
     
-    # ТОТ САМЫЙ ЭНДПОИНТ ДЛЯ ЛАЙКОВ (Фикс ошибки 404!)
     path('comments/<int:comment_id>/like/', CommentLikeToggleView.as_view(), name='comment-like'),
 ]

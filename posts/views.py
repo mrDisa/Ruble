@@ -1,5 +1,6 @@
 # Django
 from django.shortcuts import get_object_or_404
+from django.db import transaction
 
 # Django REST Framework
 from rest_framework import generics, status, filters
@@ -10,8 +11,8 @@ from rest_framework.views import APIView
 # Локальные импорты
 from interactions.permissions import IsOwnerOrReadOnly
 from posts.models import Comment, Like, Post
-from .serializers import CommentSerializer, LikeSerializer, PostSerializer
-
+from .serializers import CommentSerializer, PostRatingSerializer, PostSerializer
+from .models import PostRating
 
 # ==========================================
 # POSTS
@@ -63,6 +64,45 @@ class PostCommentsView(generics.ListCreateAPIView):
             post_id=post_id
         )
 
+class PostRatingView(APIView):
+
+    @transaction.atomic()
+    def post(self, request, post_id):
+        serializer = PostRatingSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        value = serializer.validated_data['value']
+        post = Post.objects.select_for_update().get(id=post_id)
+
+        rating, created = PostRating.objects.get_or_create(
+            user=request.user,
+            post=post,
+            defaults={'value': value}
+        )
+
+        if created:
+            post.rating_count += 1
+            post.rating_avg = (
+                (post.rating_avg * (post.rating_count - 1) + value)
+                / post.rating_count
+            )
+
+        else:
+            old_value = rating.value
+            rating.value = value
+            rating.save()
+
+            post.rating_avg = (
+                (post.rating_avg * post.rating_count - old_value + value)
+                / post.rating_count
+            )
+
+        post.save()
+
+        return Response({
+            "rating_avg": post.rating_avg,
+            "rating_count": post.rating_count
+        }, status=status.HTTP_200_OK)
 # ==========================================
 # COMMENTS
 # ==========================================
