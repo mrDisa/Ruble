@@ -13,6 +13,58 @@ function getCookie(name) {
   return cookieValue;
 }
 
+// auto-refresh для auth
+async function refreshToken() {
+  const refresh = localStorage.getItem("refresh_token");
+
+  const res = await fetch("/api/token/refresh/", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ refresh }),
+  });
+
+  if (!res.ok) return false;
+
+  const data = await res.json();
+  localStorage.setItem("access_token", data.access);
+  return true;
+}
+// Аутентификация по JWT
+async function authFetch(url, options = {}) {
+  let token = localStorage.getItem("access_token");
+
+  const headers = {
+    ...(options.headers || {}),
+    Authorization: `Bearer ${token}`,
+  };
+
+  let res = await fetch(url, { ...options, headers });
+
+  // если токен умер
+  if (res.status === 401 || res.status === 403) {
+    const refreshed = await refreshToken();
+
+    if (refreshed) {
+      token = localStorage.getItem("access_token");
+
+      res = await fetch(url, {
+        ...options,
+        headers: {
+          ...(options.headers || {}),
+          Authorization: `Bearer ${token}`,
+        },
+      });
+    } else {
+      localStorage.removeItem("access_token");
+      localStorage.removeItem("refresh_token");
+      window.location.href = "/login/";
+      return;
+    }
+  }
+
+  return res;
+}
+
 function createPostElement(post, accessToken) {
   const postDiv = document.createElement("div");
   postDiv.classList.add("post");
@@ -25,6 +77,22 @@ function createPostElement(post, accessToken) {
   const authorId = author.id || "";
   const profileUrl = authorId ? `/profile/${authorId}/` : "#";
 
+  const ratingAvg = post.rating_avg || 0;
+  const ratingCount = post.rating_count || 0;
+
+  let valueLabel = "";
+  let valueColor = "#8b8b9b";
+
+  if (post.score >= 0.2) {
+    valueLabel = "🔥 Ценный";
+    valueColor = "#4bad1d";
+  } else if (post.score >= 0.1) {
+    valueLabel = "👍 Норм";
+    valueColor = "#ffa940";
+  } else {
+    valueLabel = "🫤 Слабый";
+    valueColor = "#8b8b9b";
+  }
   const dateObj = new Date(post.created_at);
   const formattedDate = dateObj.toLocaleDateString("ru-RU", {
     hour: "2-digit",
@@ -98,19 +166,73 @@ function createPostElement(post, accessToken) {
     `;
   }
 
+  const avatarHtml = author.avatar
+    ? `<img src="${author.avatar}" style="
+        width:100%;
+        height:100%;
+        border-radius:50%;
+        object-fit:cover;
+      ">`
+    : authorName.charAt(0).toUpperCase();
+
   postDiv.innerHTML = `
       <div class="post-header" style="display: flex; align-items: center; margin-bottom: 16px;">
-        <div class="post-user-info" style="display: flex; align-items: center; gap: 12px;">
-          <div class="avatar" style="width: 44px; height: 44px; background: #ffffff; color: #000000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px;">
-            ${authorName.charAt(0).toUpperCase()}
+
+        <div class="post-user-info" style="display: flex; align-items: center; gap: 12px; width: 100%;">
+
+          <!-- Avatar -->
+          <div class="avatar" style="width: 44px; height: 44px; background: #ffffff; color: #000; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 18px;">
+            ${avatarHtml}
           </div>
-          <div class="user-details">
-            <div class="user-name-row" style="font-weight: 600; font-size: 15px;">
-                <a href="${profileUrl}" style="text-decoration:none; color:#ffffff;" class="user-name">${authorName}</a>
+
+          <!-- Name block -->
+          <div style="display: flex; flex-direction: column;">
+            <div style="font-weight: 600; font-size: 15px;">
+              <a href="${profileUrl}" style="text-decoration:none; color:#ffffff;">
+                ${authorName}
+              </a>
             </div>
-            <div class="user-tag-row" style="color: #8b8b9b; font-size: 13px;">
-                <span class="user-tag" style="color: #8b8b9b;">@${author.username || "user"}</span>
+
+            <div style="color: #8b8b9b; font-size: 13px;">
+              @${author.username || "user"}
             </div>
+          </div>
+
+          <!-- RIGHT BLOCK (VALUE + RATING) -->
+          <div style="
+              margin-left: auto;
+              display: flex;
+              flex-direction: column;
+              align-items: flex-end;
+              gap: 6px;
+          ">
+            
+            <!-- VALUE BADGE -->
+            <div style="
+                font-size: 12px;
+                font-weight: 600;
+                color: ${valueColor};
+                background: #1c1c22;
+                padding: 5px 10px;
+                border-radius: 10px;
+                white-space: nowrap;
+            ">
+              ${valueLabel}
+            </div>
+
+            <!-- RATING -->
+            <div style="
+                font-size: 12px;
+                color: #8b8b9b;
+                white-space: nowrap;
+            ">
+              Рейтинг: ${
+                ratingCount > 0
+                  ? `${ratingAvg.toFixed(1)} / 5 (${ratingCount} оцен${ratingCount === 1 ? "ка" : "ки"})`
+                  : "нет оценок"
+              }
+            </div>
+
           </div>
         </div>
       </div>
@@ -134,6 +256,16 @@ function createPostElement(post, accessToken) {
             </svg>
             <span style="font-weight: 500;">${post.comments_count || 0}</span>
           </div>
+          <div class="action-btn rate-btn" style="display: flex; align-items: center; gap: 6px; cursor: pointer; transition: 0.2s;">
+            <svg width="22" height="22" fill="#8b8b9b" viewBox="0 0 24 24">
+              <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/>
+            </svg>
+            <span style="font-weight: 400;">
+              ${post.rating_count > 0
+                ? `${post.rating_avg.toFixed(1)}`
+                : "Оценить"}
+            </span>
+          </div>
         </div>
 
         <div class="post-footer" style="font-size: 13px; color: #6a6a8a; font-weight: 500;">
@@ -156,6 +288,7 @@ function createPostElement(post, accessToken) {
 
   // Логика лайка поста
   const lBtn = postDiv.querySelector(".like-btn");
+  
   lBtn.addEventListener("click", async () => {
     isLiked = !isLiked;
     currentLikes += isLiked ? 1 : -1;
@@ -165,7 +298,7 @@ function createPostElement(post, accessToken) {
     lBtn.querySelector("span").textContent = currentLikes;
     lBtn.querySelector("span").style.color = isLiked ? "#ff4d4f" : "#8b8b9b";
 
-    await fetch(`/api/v1/posts/${post.id}/like/`, {
+    await authFetch(`/api/v1/posts/${post.id}/like/`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${accessToken}`,
@@ -173,7 +306,74 @@ function createPostElement(post, accessToken) {
       },
     });
   });
+  // Оценка поста
+  const rateBtn = postDiv.querySelector(".rate-btn");
+  const ratingMenu = document.createElement("div");
+  ratingMenu.style.cssText = `
+    position: absolute;
+    background: #1c1c22;
+    border: 1px solid #2a2a35;
+    border-radius: 12px;
+    padding: 8px;
+    display: none;
+    flex-direction: column;
+    gap: 6px;
+    z-index: 999;
+  `;
 
+  for (let i = 5; i >= 1; i--) {
+    const btn = document.createElement("button");
+    btn.textContent = `${i} ★`;
+    btn.style.cssText = `
+      background: transparent;
+      border: none;
+      color: #fff;
+      cursor: pointer;
+      padding: 6px 10px;
+      text-align: left;
+      border-radius: 8px;
+    `;
+
+    btn.onmouseover = () => btn.style.background = "#2a2a35";
+    btn.onmouseout = () => btn.style.background = "transparent";
+
+    btn.addEventListener("click", async () => {
+      try {
+        await authFetch(`/api/v1/posts/${post.id}/rate/`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${accessToken}`,
+            "X-CSRFToken": csrftoken,
+          },
+          body: JSON.stringify({ value: i }),
+        });
+
+        rateBtn.querySelector("span").textContent = `${i} ★`;
+        ratingMenu.style.display = "none";
+      } catch (e) {
+        console.error("Ошибка оценки:", e);
+      }
+    });
+
+    ratingMenu.appendChild(btn);
+  }
+  postDiv.appendChild(ratingMenu);
+  rateBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+
+  const rect = rateBtn.getBoundingClientRect();
+
+  ratingMenu.style.left = rect.left + "px";
+  ratingMenu.style.top = rect.bottom + "px";
+
+  ratingMenu.style.display =
+    ratingMenu.style.display === "flex" ? "none" : "flex";
+});
+
+document.addEventListener("click", () => {
+  ratingMenu.style.display = "none";
+});
   // Открытие/закрытие комментариев
   const cBtn = postDiv.querySelector(".comment-btn");
   const cSec = postDiv.querySelector(".comment-section");
@@ -217,7 +417,7 @@ function createPostElement(post, accessToken) {
     });
 
     try {
-      await fetch(`/api/v1/posts/${post.id}/comments/${commentId}/like/`, {
+      await authFetch(`/api/v1/posts/${post.id}/comments/${commentId}/like/`, {
         method: "POST",
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -266,7 +466,7 @@ function createPostElement(post, accessToken) {
     inpC.value = "";
 
     try {
-      const res = await fetch("/api/v1/comments/", {
+      const res = await authFetch("/api/v1/comments/", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -356,7 +556,7 @@ window.initNotifications = async function (accessToken) {
       });
 
       try {
-        await fetch("/api/v1/notifications/read_all/", {
+        await authFetch("/api/v1/notifications/read_all/", {
           method: "PATCH",
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -374,7 +574,7 @@ window.initNotifications = async function (accessToken) {
   });
 
   try {
-    const res = await fetch("/api/v1/notifications/", {
+    const res = await authFetch("/api/v1/notifications/", {
       headers: { Authorization: `Bearer ${accessToken}` },
     });
 

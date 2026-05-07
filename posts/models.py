@@ -4,6 +4,7 @@ from django.dispatch import receiver
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.shortcuts import get_object_or_404
 
+from .managers import PostQuerySet
 from users.models import User
 
 
@@ -17,6 +18,8 @@ class Post(models.Model):
 
     rating_avg = models.FloatField(default=0)
     rating_count = models.IntegerField(default=0)
+
+    objects = PostQuerySet.as_manager()
     
     def __str__(self):
         return f"Автор: {self.author}, Заголовок поста: {self.title}"

@@ -157,10 +157,19 @@ document.addEventListener("DOMContentLoaded", () => {
           userData.username;
         document.getElementById("current-usertag").textContent =
           `@${userData.username}`;
-        document.getElementById("current-avatar").textContent =
-          userData.username.charAt(0).toUpperCase();
+        const avatarEl = document.getElementById("current-avatar");
 
-        // ИЗМЕНЕНО: Привязываем ссылку профиля к новой кнопке в меню
+        if (userData.avatar) {
+          avatarEl.innerHTML = `<img src="${userData.avatar}" style="
+            width:100%;
+            height:100%;
+            border-radius:50%;
+            object-fit:cover;
+          ">`;
+        } else {
+          avatarEl.textContent = userData.username.charAt(0).toUpperCase();
+        }
+
         document.getElementById("dropdown-profile-link").href =
           `/profile/${userData.id}/`;
       }
@@ -169,7 +178,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   }
 
-  let nextPostsUrl = "/api/v1/posts/";
+  let nextPostsUrl = "/api/v1/feed/";
   let isFetchingPosts = false;
 
   async function fetchPosts() {

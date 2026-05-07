@@ -1,6 +1,10 @@
 # Django
 from django.shortcuts import get_object_or_404
 from django.db import transaction
+from django.db import models
+from django.db.models import F, FloatField, ExpressionWrapper
+from django.db.models.functions import Coalesce, Extract, Now
+from django.db.models.functions import Ln, Exp
 
 # Django REST Framework
 from rest_framework import generics, status, filters
@@ -10,7 +14,7 @@ from rest_framework.views import APIView
 
 # Локальные импорты
 from interactions.permissions import IsOwnerOrReadOnly
-from posts.models import Comment, Like, Post
+from .models import Comment, Like, Post
 from .serializers import CommentSerializer, PostRatingSerializer, PostSerializer
 from .models import PostRating
 
@@ -31,23 +35,25 @@ class PostListCreateView(generics.ListCreateAPIView):
 
 
 class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
-    queryset = Post.objects.all()
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
+
+    def get_queryset(self):
+        return Post.objects.with_score()
 
 
 class MyPostsView(generics.ListAPIView):
     serializer_class = PostSerializer
 
     def get_queryset(self):
-        return Post.objects.filter(author=self.request.user).order_by('-id')
+        return Post.objects.with_score().filter(author=self.request.user).order_by('-id')
 
 
 class MyPostsDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = PostSerializer
 
     def get_queryset(self):
-        return Post.objects.filter(author=self.request.user)
+        return Post.objects.with_score().filter(author=self.request.user)
 
 
 class PostCommentsView(generics.ListCreateAPIView):
@@ -176,4 +182,4 @@ class UserPostsListView(generics.ListAPIView):
 
     def get_queryset(self):
         user_id = self.kwargs['user_id']
-        return Post.objects.filter(author_id=user_id).order_by('-created_at')
+        return Post.objects.with_score().filter(author_id=user_id).order_by('-created_at')

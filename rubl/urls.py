@@ -5,7 +5,7 @@ from django.views.generic import TemplateView # Импорт для HTML-стр�
 
 # Оставили только нужные импорты
 from main import views
-from feed.views import FeedAPIView, FeedView
+from feed.views import FeedAPIView, FeedFollowsAPIView, FeedView
 from interactions.views import SearchView
 from . import settings
 from django.views.generic import RedirectView
@@ -34,7 +34,8 @@ urlpatterns = [
     path("api/v1/token/refresh/", TokenRefreshView.as_view(), name='token_refresh'),
 
     # 2. Лента API
-    path('api/v1/feed/', FeedAPIView.as_view(), name='api_feed'),
+    path('api/v1/feed/follows/', FeedFollowsAPIView.as_view(), name='api_feed'),
+    path("api/v1/feed/", FeedAPIView.as_view(), name="feed"),
 
     # 3. Маршруты приложений
     path('api/v1/', include('main.api.urls')),

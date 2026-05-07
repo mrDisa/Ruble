@@ -1,4 +1,6 @@
 from django.shortcuts import render
+from django.db.models import F, FloatField, ExpressionWrapper
+
 from rest_framework import generics, filters
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.viewsets import ReadOnlyModelViewSet
@@ -25,6 +27,7 @@ class UserDetailView(generics.RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = [IsAuthenticated, IsOwnerOrReadOnly]
+    
 
 class UserMeView(generics.RetrieveUpdateAPIView):
     serializer_class = UserSerializer
@@ -32,13 +35,14 @@ class UserMeView(generics.RetrieveUpdateAPIView):
 
     def get_object(self):
         return self.request.user
+    
 
 class UserPostsListView(generics.ListAPIView):
     serializer_class = PostSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get_queryset(self):
-        return Post.objects.filter(author_id=self.request.user)
+        Post.objects.with_score().filter(author_id=self.kwargs["pk"])
 
 class UserFollowersListView(generics.ListAPIView):
     serializer_class = UserSerializer

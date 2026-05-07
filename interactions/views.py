@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from django.shortcuts import get_object_or_404
+from django.db.models import Q
 # Other 
 from posts.models import Post
 from posts.serializers import PostSerializer
@@ -20,7 +21,16 @@ class SearchView(APIView):
         query = request.query_params.get("q", "")
 
         users = User.objects.filter(username__icontains=query)[:5]
-        posts = Post.objects.filter(title__icontains=query)[:5]
+        
+        posts = (
+            Post.objects
+            .with_score()
+            .filter(
+                Q(title__icontains=query) |
+                Q(content__icontains=query)
+            )
+            .order_by('-score')[:5]
+        )
 
         return Response({
             "users": UserSerializer(users, many=True).data,

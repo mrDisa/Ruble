@@ -6,7 +6,7 @@ class UserSerializer(serializers.ModelSerializer):
     # Добавляем динамические поля
     is_followed = serializers.SerializerMethodField()
     followers_count = serializers.SerializerMethodField()
-
+    
     class Meta:
         model = User
         # Добавляем новые поля в список
