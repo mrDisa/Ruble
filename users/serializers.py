@@ -6,13 +6,22 @@ class UserSerializer(serializers.ModelSerializer):
     # Добавляем динамические поля
     is_followed = serializers.SerializerMethodField()
     followers_count = serializers.SerializerMethodField()
+
+    # Считаем лайки, комментарии, посты, оценки для ранга
+    posts_count = serializers.IntegerField(read_only=True)
+    comments_count = serializers.IntegerField(read_only=True)
+    total_post_likes = serializers.FloatField(read_only=True)
+    total_comment_likes = serializers.FloatField(read_only=True)
+    total_post_score = serializers.FloatField(read_only=True)
     
     class Meta:
         model = User
-        # Добавляем новые поля в список
         fields = [
             'id', 'username', 'first_name', 'email', 'password', 
-            'job', 'bio', 'avatar', 'rank', 'is_followed', 'followers_count'
+            'job', 'bio', 'avatar', 'rank', 'is_followed', 'followers_count', 
+            'posts_count', 'comments_count', 'total_post_likes', 'total_comment_likes', 
+            'total_post_score', 'rank_score'
+
         ]
         extra_kwargs = {
             'password': {'write_only': True},

@@ -13,6 +13,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const titleInput = document.getElementById("new-post-title");
   const contentInput = document.getElementById("new-post-content");
   const sBtn = document.getElementById("submit-post-btn");
+  const postError = document.getElementById("post-error");
+  console.log(postError);
 
   [titleInput, contentInput].forEach((el) => {
     el.addEventListener("keydown", (e) => {
@@ -234,40 +236,76 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     });
   }
-
   sBtn.addEventListener("click", async () => {
-    const title = titleInput.value.trim();
-    const content = contentInput.value.trim();
+  const title = titleInput.value.trim();
+  const content = contentInput.value.trim();
 
-    if (!content && !mediaInp.files[0]) return;
+  postError.style.display = "none";
+  postError.innerHTML = "";
 
-    const fd = new FormData();
-    if (title) fd.append("title", title);
-    fd.append("content", content);
-    if (mediaInp.files[0]) fd.append("media", mediaInp.files[0]);
+  if (!content && !mediaInp.files[0]) return;
+
+  const fd = new FormData();
+
+  if (title) fd.append("title", title);
+  fd.append("content", content);
+
+  if (mediaInp.files[0]) {
+    fd.append("media", mediaInp.files[0]);
+  }
+
+  try {
+    const res = await fetch("/api/v1/posts/", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "X-CSRFToken": csrftoken,
+      },
+      body: fd,
+    });
+
+    let data = {};
 
     try {
-      const res = await fetch("/api/v1/posts/", {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "X-CSRFToken": csrftoken,
-        },
-        body: fd,
-      });
-      if (res.ok) {
-        const newPost = await res.json();
-        feedContainer.prepend(createPostElement(newPost, accessToken));
-        titleInput.value = "";
-        contentInput.value = "";
-        mediaInp.value = "";
-        fileName.textContent = "";
-        attachBtn.setAttribute("fill", "#8b8b9b");
-      }
-    } catch (e) {
-      console.error(e);
+      data = await res.json();
+    } catch {
+      data = { error: "Ошибка сервера" };
     }
-  });
+
+    if (res.ok) {
+      feedContainer.prepend(createPostElement(data, accessToken));
+
+      titleInput.value = "";
+      contentInput.value = "";
+      mediaInp.value = "";
+
+      fileName.textContent = "";
+      attachBtn.setAttribute("fill", "#8b8b9b");
+
+    } else {
+      console.log(data);
+
+      const errors = Object.entries(data)
+        .map(([field, messages]) => {
+          if (Array.isArray(messages)) {
+            return `${field}: ${messages.join(", ")}`;
+          }
+
+          return `${field}: ${messages}`;
+        })
+        .join("<br>");
+
+      postError.innerHTML = errors || "Ошибка создания поста";
+      postError.style.display = "block";
+    }
+
+  } catch (e) {
+    console.error(e);
+
+    postError.innerHTML = "Ошибка сети";
+    postError.style.display = "block";
+  }
+});
 
   loadMyProfile();
   fetchPosts();

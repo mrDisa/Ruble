@@ -310,7 +310,7 @@ function createPostElement(post, accessToken) {
   const rateBtn = postDiv.querySelector(".rate-btn");
   const ratingMenu = document.createElement("div");
   ratingMenu.style.cssText = `
-    position: absolute;
+    position: fixed;
     background: #1c1c22;
     border: 1px solid #2a2a35;
     border-radius: 12px;

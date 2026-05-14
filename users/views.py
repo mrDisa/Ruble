@@ -60,3 +60,10 @@ class UserFollowingListView(generics.ListAPIView):
     def get_queryset(self):
         following_ids = Follow.objects.filter(follower_id=self.request.user).values_list('following_id', flat=True)
         return User.objects.filter(id__in=following_ids)
+    
+class LeaderboardAPIView(generics.ListAPIView):
+    serializer_class = UserSerializer
+
+    def get_queryset(self):
+        return User.objects.with_rank_score().order_by("-rank_score")[:10]
+    

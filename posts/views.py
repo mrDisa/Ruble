@@ -14,6 +14,7 @@ from rest_framework.views import APIView
 
 # Локальные импорты
 from interactions.permissions import IsOwnerOrReadOnly
+from .services import update_user_rank
 from .models import Comment, Like, Post
 from .serializers import CommentSerializer, PostRatingSerializer, PostSerializer
 from .models import PostRating
@@ -29,10 +30,10 @@ class PostListCreateView(generics.ListCreateAPIView):
 
     filter_backends = [filters.SearchFilter]
     search_fields = ["title", "content"]
-
+    
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
-
+        post = serializer.save(author=self.request.user)
+        update_user_rank(post.author)
 
 class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = PostSerializer
@@ -104,6 +105,12 @@ class PostRatingView(APIView):
             )
 
         post.save()
+        update_user_rank(post.author)
+
+        scored_post = Post.objects.with_score().get(id=post.id)
+
+        post.score = scored_post.calculated_score
+        post.save(update_fields=["score"])
 
         return Response({
             "rating_avg": post.rating_avg,
@@ -119,7 +126,8 @@ class CommentListCreateView(generics.ListCreateAPIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def perform_create(self, serializer):
-        serializer.save(author=self.request.user)
+        comment = serializer.save(author=self.request.user)
+        update_user_rank(comment.author)
 
 
 class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
@@ -129,13 +137,11 @@ class CommentDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 
 class CommentLikeToggleView(APIView):
-    # ВЕРНУЛИ post_id, так как роутер бэкендера передает его в URL
     def post(self, request, post_id, comment_id):
 
         if request.user.is_anonymous:
             return Response(status=401)
 
-        # Находим комментарий, дополнительно проверяя, что он принадлежит именно этому посту
         comment = get_object_or_404(Comment, id=comment_id, post_id=post_id)
 
         like = Like.objects.filter(
@@ -145,12 +151,14 @@ class CommentLikeToggleView(APIView):
 
         if like:
             like.delete()
+            update_user_rank(comment.author)
             return Response({"liked": False})
 
         Like.objects.create(
             user=request.user,
             comment=comment
         )
+        update_user_rank(comment.author)
 
         return Response({"liked": True})
 
@@ -168,10 +176,14 @@ class ToggleLikeView(APIView):
         
         if like_qs.exists():
             like_qs.delete()
+            update_user_rank(post.author)
             return Response({"detail": "Лайк убран", "is_liked": False}, status=status.HTTP_200_OK)
         
         Like.objects.create(user=request.user, post=post)
+        update_user_rank(post.author)
+
         return Response({"detail": "Лайк поставлен", "is_liked": True}, status=status.HTTP_201_CREATED)
+    
     
 # ==========================================
 # PROFILE

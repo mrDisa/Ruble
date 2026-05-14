@@ -40,6 +40,6 @@ class PostQuerySet(models.QuerySet):
         score = quality * velocity * freshness
 
         return self.annotate(
-            score=score,
+            calculated_score=score,
             age_days=age_days
         )

@@ -9,13 +9,14 @@ from users.models import User
 
 
 class Post(models.Model):
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
-    title = models.CharField(max_length=100, blank=True, null=True)
-    content = models.TextField(max_length=600, blank=True, null=True)
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
+    title = models.CharField(max_length=200, blank=True, null=True)
+    content = models.TextField(max_length=3000, blank=True, null=True)
     media = models.ImageField(upload_to='media/%Y%m%d', blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
+    score = models.FloatField(default=0)
     rating_avg = models.FloatField(default=0)
     rating_count = models.IntegerField(default=0)
 
@@ -39,7 +40,7 @@ class PostRating(models.Model):
         ]
 
 class Comment(models.Model):
-    author = models.ForeignKey(User, on_delete=models.CASCADE)
+    author = models.ForeignKey(User, on_delete=models.CASCADE, related_name='comments')
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='comments')
     text = models.TextField(max_length=300)
     media = models.ImageField(upload_to='media_comments/%Y/%m%d', blank=True)
@@ -49,9 +50,9 @@ class Comment(models.Model):
         return f'Автор комментария: {self.author}, Название поста: {self.post}'
 
 class Like(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='who_liked')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='likes')
     post = models.ForeignKey(Post, on_delete=models.CASCADE, null=True, blank=True, related_name='likes')
-    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, null=True, blank=True)
+    comment = models.ForeignKey(Comment, on_delete=models.CASCADE, null=True, blank=True, related_name='likes')
     created_at = models.DateTimeField(auto_now_add=True)
     
     def __str__(self):

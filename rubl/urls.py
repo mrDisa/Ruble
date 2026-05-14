@@ -7,6 +7,7 @@ from django.views.generic import TemplateView # Импорт для HTML-стр�
 from main import views
 from feed.views import FeedAPIView, FeedFollowsAPIView, FeedView
 from interactions.views import SearchView
+from users.views import LeaderboardAPIView
 from . import settings
 from django.views.generic import RedirectView
 
@@ -41,6 +42,7 @@ urlpatterns = [
     path('api/v1/', include('main.api.urls')),
     path('api/v1/search/', SearchView.as_view()),
     path('profile/<int:pk>/', TemplateView.as_view(template_name='users/profile.html'), name='profile_page'),
+    path('api/v1/leaderboard/', LeaderboardAPIView.as_view()),
 
     path('api/v1/interactions/', include('interactions.urls')),
     path('api/v1/notifications/', include('notifications.urls')),
